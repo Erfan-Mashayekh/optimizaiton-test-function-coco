@@ -32,7 +32,7 @@ class COCOTestFunction(TestFunction):
     Usually evaluated on [-5,5]^d
     Global minimum at x_i=1 where f(x)=0
     """
-    def __init__(self, id, constr_number, dim, xopt, fopt, ystar):
+    def __init__(self, id, constrained, constr_number, dim, xopt, fopt, ystar):
         super().__init__(
             name='F1',
             dim=dim,
@@ -43,6 +43,7 @@ class COCOTestFunction(TestFunction):
         self.xopt = xopt        # location of optimal point
         self.fopt = fopt        # optimal value        
         self.ystar = ystar      # location of constrained optimal point
+        self.constrained = constrained
         self.constr_number = constr_number
         self.a = np.zeros((self.constr_number, self.dim))
 
@@ -63,12 +64,12 @@ class COCOTestFunction(TestFunction):
 
         xopt = self.xopt[0] * np.ones(x.shape)[0]
 
-        if self.id == 1:     # F1            
+        if self.id == 1:     # F1: Sphere Function      
             z = x - xopt
             f = np.sum(z ** 2, axis=0) + self.fopt
             return f    
 
-        elif self.id == 2:   # F2 
+        elif self.id == 2:   # F2: Separable Ellipsoidal Function
             z = self.tosz(x - xopt)
 
             i = (np.arange(self.dim) + 1)
@@ -80,11 +81,21 @@ class COCOTestFunction(TestFunction):
 
             return f
 
-        #elif 
+        elif self.id == 5:   # F5: Linear Slop
+            z = np.where(xopt*x < 5**2, x, xopt)
+            i = (np.arange(self.dim) + 1)
+            if np.size(x.shape) > 1:
+                shape = np.ones(np.size(x.shape))
+                shape[0] = self.dim
+                i = np.broadcast_to(i.reshape(shape.astype(int)), x.shape)
+            s = np.sign(xopt) * 10 ** ((i-1) / (self.dim-1))
+            f = np.sum(5 * abs(s) - s * z, axis=0) + self.fopt
+
+            return f
 
     def grid(self):
-        x1 = np.linspace(self.lb[0], self.ub[0], 200)
-        x2 = np.linspace(self.lb[1], self.ub[1], 200)
+        x1 = np.linspace(self.lb[0], self.ub[0], 300)
+        x2 = np.linspace(self.lb[1], self.ub[1], 300)
         x1_mesh, x2_mesh = np.meshgrid(x1, x2)
         inputs = np.array([x1_mesh, x2_mesh])
         f = self.evaluate(inputs)
