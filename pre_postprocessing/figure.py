@@ -11,7 +11,7 @@ class Figure:
     def contour(self, test_function):
         x1_mesh, x2_mesh, f = test_function.grid()
         self.fig, self.ax=plt.subplots(1,1)    
-        cp = self.ax.contour(x1_mesh, x2_mesh, (f), cmap='rainbow')        
+        cp = self.ax.contour(x1_mesh, x2_mesh, np.log(f), cmap='rainbow')        
         self.fig.colorbar(cp)
 
         x = np.zeros((f.size, self.dim))

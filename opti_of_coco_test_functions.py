@@ -15,8 +15,8 @@ from pre_postprocessing.coco_test_functions import COCOTestFunction
 from pre_postprocessing.figure import Figure
 
 # COCO TEST FUNCTION
-coco_id = 5
-constrained = False             # bool
+coco_id = 1
+constrained = True             # bool
 dim = 2                         # input dimension ∈ {2,3,5,10,20,40}
 # xopt = np.ones((dim,))        # location of optimal point
 xopt = np.array([-5,5])
