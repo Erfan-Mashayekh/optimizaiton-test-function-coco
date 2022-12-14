@@ -16,3 +16,10 @@ TODO:
 1. Add the rest of the test functions
 2. Generalize the process of biases `b` generation in `compute_g` function
 3. Read inputs from the input.json
+
+
+Error Raiesd for using `Scipy.minimize()` for minimizing `n` points in paralell: 
+
+- DeprecationWarning: Use of `minimize` with `x0.ndim != 1` is deprecated. Currently, singleton dimensions will be removed from `x0`, but an error will be raised in SciPy 1.11.0. opti_result = minimize(object_function,
+
+

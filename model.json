@@ -1,0 +1,16 @@
+{
+  "function_type": 1,      // types of functions: coco:1, normal:2
+  "coco_id": 1,            // Set the function id
+  "constrained": false,    // True if there are contraints
+  "dimensions": 2,         // Input dimension ∈ {2,3,5,10,20,40}
+  "points": 3,             // Number of points to be optimized
+  "opt_read": false,       // True if xopt, fopt, ystar, x_init are read from data.csv file.
+  "min_method": "COBYLA",  // minimization method: BFGS, COBYLA, SLSQP, ...
+  "constraints": 2,        // Number of constraints
+  "grid_size": 100,        // grid size for plotting in a 2d field: 10 -> 10x10
+
+  // lower and upper bounds in minimization process: -1 for dim=2 becomes [-1, -1] vector
+  // only for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell, and trust-constr methods
+  "lower_bounds": -10,
+  "upper_bounds": 10
+}
