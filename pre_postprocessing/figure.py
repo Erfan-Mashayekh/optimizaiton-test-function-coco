@@ -3,7 +3,8 @@ import numpy as np
 
 
 class Figure:
-    def __init__(self, dim):
+    def __init__(self, dim, model):
+        self.log_scale = model['log_scale']
         self.ax = None
         self.fig = None
         self.dim = dim
@@ -13,21 +14,21 @@ class Figure:
         f = f.reshape(x1_mesh.shape)
 
         self.fig, self.ax = plt.subplots(1, 1)
-        cp = self.ax.contour(x1_mesh, x2_mesh, f, cmap='rainbow')
+        if self.log_scale:
+            cp = self.ax.contour(x1_mesh, x2_mesh, np.log(f), cmap='rainbow')
+        else:
+            cp = self.ax.contour(x1_mesh, x2_mesh, f, cmap='rainbow')
         self.fig.colorbar(cp)
 
         x = np.zeros((f.size, self.dim))
         x[:, 0] = np.reshape(x1_mesh, f.size)
         x[:, 1] = np.reshape(x2_mesh, f.size)
-        # print(f'x: \n{x}')
+
         if test_function.constrained:
             alpha = 0.9
-            #a = test_function.get_a()
-            print(a)
             g = test_function.compute_g(x, a)
             for i in range(test_function.constr_number):
                 g_reshaped = np.reshape(g[i, :], f.shape) < 0
-                #print(f' \n {g_reshaped}')
                 self.ax.contourf(x1_mesh, x2_mesh, g_reshaped,
                                  cmap='Greys',
                                  alpha=alpha)
@@ -36,7 +37,6 @@ class Figure:
                                 levels=0,
                                 colors='black')
                 alpha = alpha * 0.7
-
         self.ax.set_title('Coco Function')
 
     def init_points(self, constrained, init, ystar):

@@ -29,15 +29,15 @@ class COCOTestFunction:
     Global minimum at x_i=1 where f(x)=0
     """
 
-    def __init__(self, coco_id, dim, lb, ub, points, constrained, constr_number, xopt, fopt, ystar):
+    def __init__(self, model, dim, lb, ub, constrained, xopt, fopt, ystar):
 
-        self.coco_id = coco_id
+        self.coco_id = model['coco_id']  # name of test function
+        self.points = model['points']  # number of points to be minimized
+        self.constr_number = model['constraints']  # number of constraints
         self.dim = dim
         self.lb = lb
         self.ub = ub
-        self.points = points
         self.constrained = constrained
-        self.constr_number = constr_number
         self.xopt = xopt
         self.fopt = fopt
         self.ystar = ystar
@@ -80,8 +80,6 @@ class COCOTestFunction:
         self.a = np.zeros((self.constr_number, self.dim))
         x1, x2, f = grid
         f = f.reshape(x1.shape)
-
-        np.set_printoptions(precision=1)
         f_shape = list(f.shape)
         f_shape.insert(0, self.dim)
         grad_f = np.zeros(tuple(f_shape))
@@ -104,6 +102,7 @@ class COCOTestFunction:
         return self.a
 
     def compute_g(self, x, a):
+        print(f'a : \n {a}')
         # g = alpha * (a @ (x-self.ystar).T) + b
         g = (a @ (x - self.ystar).T)
         g[1] = g[1] + 2.

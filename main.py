@@ -14,12 +14,14 @@ if __name__ == '__main__':
     opt_read = model['opt_read']  # bool: read input points from data.csv
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
     grid_size = model['grid_size']  # grid size for plotting
+    lb = model['lower_bounds'] * np.ones(dim)
+    ub = model['upper_bounds'] * np.ones(dim)
 
     xopt = np.array([2, 1])
     fopt = 10
     ystar = np.array([-4, 2])
-    #x_init = np.array([[4, 3], [-4, 3], [-4, -3]])
-    x_init = np.random.uniform(low=[-5, -5], high=[5, 5], size=(model['points'], dim))
+    points = model['points']
+    x_init = np.random.uniform(low=lb, high=ub, size=(points, dim))
     x = [xopt, fopt, ystar]
 
     optimizer = []
@@ -42,7 +44,7 @@ if __name__ == '__main__':
     print("Optimization finished after %f seconds." % time_opti)
 
     if dim == 2:
-        figure = Figure(dim)
+        figure = Figure(dim, model)
         a = optimizer[0].get_a()
         figure.contour(test_function, grid_size, a)
         figure.init_points(model['constrained'], x_init, ystar)
