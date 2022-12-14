@@ -16,8 +16,8 @@
 
 ### December 14th, 2022
 The following implementations has been done to the code:
-- The first issue is fixed by removing unnecessary part.
-- The second issue is fixed with the following description:
+1. The first issue is fixed by removing unnecessary part.
+2. The second issue is fixed with the following description:
 
 `scipy.minimize()` is designed to minimize an m-dimensional point at each time. Therefore, when calling it for `n` m-dimensional points (`n x m` input `x`), it only minimizes the first point and shows the following warning:
 
