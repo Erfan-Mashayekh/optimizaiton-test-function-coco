@@ -10,6 +10,7 @@ Functions mostly from: https://www.sfu.ca/~ssurjano/index.html
 """
 import numpy as np
 
+
 def tosz(x):
     """
     Non-Linear Transformation
@@ -27,6 +28,7 @@ class COCOTestFunction:
     Usually evaluated on [-5,5]^d
     Global minimum at x_i=1 where f(x)=0
     """
+
     def __init__(self, coco_id, dim, lb, ub, points, constrained, constr_number, xopt, fopt, ystar):
 
         self.coco_id = coco_id
@@ -44,23 +46,21 @@ class COCOTestFunction:
 
     def evaluate(self, x):
 
-        xopt = self.xopt
-
         if self.coco_id == 1:  # F1: Sphere Function
-            z = x - xopt
+            z = x - self.xopt
             f = np.sum(z ** 2, axis=-1) + self.fopt
             return f
 
         elif self.coco_id == 2:  # F2: Separable Ellipsoidal Function
-            z = tosz(x - xopt)
+            z = tosz(x - self.xopt)
             i = (np.arange(self.dim) + 1)
             f = np.sum(10 ** (6 * (i - 1) / (self.dim - 1)) * z ** 2, axis=-1) + self.fopt
             return f
 
         elif self.coco_id == 5:  # F5: Linear Slop
-            z = np.where(xopt * x < 5 ** 2, x, xopt)
+            z = np.where(self.xopt * x < 5 ** 2, x, self.xopt)
             i = (np.arange(self.dim) + 1)
-            s = np.sign(xopt) * 10 ** ((i - 1) / (self.dim - 1))
+            s = np.sign(self.xopt) * 10 ** ((i - 1) / (self.dim - 1))
             f = np.sum(5 * abs(s) - s * z, axis=-1) + self.fopt
             return f
 
@@ -78,9 +78,10 @@ class COCOTestFunction:
     def compute_a(self, alpha, grid):
         # TODO: work for N dimension
         self.a = np.zeros((self.constr_number, self.dim))
-
         x1, x2, f = grid
         f = f.reshape(x1.shape)
+
+        np.set_printoptions(precision=1)
         f_shape = list(f.shape)
         f_shape.insert(0, self.dim)
         grad_f = np.zeros(tuple(f_shape))
@@ -100,9 +101,11 @@ class COCOTestFunction:
         alpha = np.ones(self.constr_number)
         b = np.zeros(self.constr_number)
         self.compute_a(alpha[0], self.grid(grid_size))
+        return self.a
 
-    def compute_g(self, x):
+    def compute_g(self, x, a):
         # g = alpha * (a @ (x-self.ystar).T) + b
-        g = (self.a @ (x - self.ystar).T)
+        g = (a @ (x - self.ystar).T)
         g[1] = g[1] + 2.
         return -g
+

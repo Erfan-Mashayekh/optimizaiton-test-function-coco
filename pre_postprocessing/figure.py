@@ -8,7 +8,7 @@ class Figure:
         self.fig = None
         self.dim = dim
 
-    def contour(self, test_function, grid_size):
+    def contour(self, test_function, grid_size, a):
         x1_mesh, x2_mesh, f = test_function.grid(grid_size)
         f = f.reshape(x1_mesh.shape)
 
@@ -19,12 +19,15 @@ class Figure:
         x = np.zeros((f.size, self.dim))
         x[:, 0] = np.reshape(x1_mesh, f.size)
         x[:, 1] = np.reshape(x2_mesh, f.size)
-
+        # print(f'x: \n{x}')
         if test_function.constrained:
             alpha = 0.9
-            g = test_function.compute_g(x)
+            #a = test_function.get_a()
+            print(a)
+            g = test_function.compute_g(x, a)
             for i in range(test_function.constr_number):
                 g_reshaped = np.reshape(g[i, :], f.shape) < 0
+                #print(f' \n {g_reshaped}')
                 self.ax.contourf(x1_mesh, x2_mesh, g_reshaped,
                                  cmap='Greys',
                                  alpha=alpha)
@@ -39,7 +42,6 @@ class Figure:
     def init_points(self, constrained, init, ystar):
         self.ax.scatter(init[:, 0], init[:, 1], s=50, c='blue')
         if constrained:
-
             self.ax.plot(ystar[0], ystar[1],
                          marker="*", markersize=7,
                          markeredgecolor="black", markerfacecolor="yellow")

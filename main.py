@@ -43,7 +43,8 @@ if __name__ == '__main__':
 
     if dim == 2:
         figure = Figure(dim)
-        figure.contour(test_function, grid_size)
+        a = optimizer[0].get_a()
+        figure.contour(test_function, grid_size, a)
         figure.init_points(model['constrained'], x_init, ystar)
         for res in result:
             figure.solution_points(res["x"])

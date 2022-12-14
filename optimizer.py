@@ -39,11 +39,9 @@ class Optimizer:
                                          self.dim, lb, ub, self.points,
                                          self.constrained, self.constr_number,
                                          self.xopt, self.fopt, self.ystar)
-        print(f"counter: {counter}")
         if self.constrained and counter == 0:
-            test_function.initialize_constraint_parameters(self.grid_size)
-            cons = {'type': 'ineq', 'fun': lambda x: test_function.compute_g(x)}
-
+            self.a = test_function.initialize_constraint_parameters(self.grid_size)
+            cons = {'type': 'ineq', 'fun': lambda x: test_function.compute_g(x, self.a)}
         if self.constrained:
             opti_result = minimize(lambda x: test_function.evaluate(x),
                                    self.x_init, args=(),
@@ -59,3 +57,6 @@ class Optimizer:
                                    tol=1e-3)
 
         return opti_result, test_function, cons
+
+    def get_a(self):
+        return self.a
