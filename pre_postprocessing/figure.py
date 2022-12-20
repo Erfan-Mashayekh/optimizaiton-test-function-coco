@@ -29,9 +29,7 @@ class Figure:
             g = test_function.compute_g(x, a)
             for i in range(test_function.constr_number):
                 g_reshaped = np.reshape(g[i, :], f.shape) < 0
-                self.ax.contourf(x1_mesh, x2_mesh, g_reshaped,
-                                 cmap='Greys',
-                                 alpha=alpha)
+                self.ax.contourf(x1_mesh, x2_mesh, g_reshaped, cmap='Greys', alpha=alpha)
                 self.ax.contour(x1_mesh, x2_mesh, g_reshaped,
                                 linewidths=1.0,
                                 levels=0,

@@ -102,9 +102,7 @@ class COCOTestFunction:
         return self.a
 
     def compute_g(self, x, a):
-        print(f'a : \n {a}')
         # g = alpha * (a @ (x-self.ystar).T) + b
         g = (a @ (x - self.ystar).T)
         g[1] = g[1] + 2.
         return -g
-

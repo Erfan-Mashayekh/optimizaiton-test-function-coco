@@ -1,7 +1,8 @@
 {
+  "scenario": "evaluate",  // 1.evaluate,  2. optimize
   "function_type": 1,  // Types of functions: coco:1, normal:2
-  "coco_id": 2,  // Set the function id
-  "constrained": false,  // True if there are contraints
+  "coco_id": 1,  // Set the function id
+  "constrained": true,  // True if there are contraints
   "dimensions": 2,  // Input dimension ∈ {2,3,5,10,20,40}
   "points": 10,  // Number of points to be optimized
   "opt_read": false,  // True if xopt, fopt, ystar, x_init are read from data.csv file.
