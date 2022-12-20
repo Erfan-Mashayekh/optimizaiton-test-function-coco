@@ -32,10 +32,8 @@ if __name__ == '__main__':
         cons = {}
         f = optimizer.get_f(x_init)
         g = optimizer.get_g(x_init).T
-        print(f'f.shape : {f.shape}')
-        print(f'f : {f}')
-        print(f'g.shape : {g.shape}')
-        print(f'g : {g}')
+        print(f'function (points, dimension): {f.shape} \n {f}')
+        print(f'constraints (points, constraints number): {g.shape} \n {g}')
         exit()
     elif scenario == 'optimize': # optimization process
         optimizer = []
