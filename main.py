@@ -1,64 +1,107 @@
+# %%
+import json
 import numpy as np
 import matplotlib.pyplot as plt
+from warnings import warn
 
-from optimizer import Optimizer
+from scipy.optimize import minimize, Bounds
 from timeit import default_timer as timer
 
-from utils import read_model
-from pre_postprocessing.figure import Figure
+from pre_postprocessing.test_functions_coco import COCOTestFunction
+from pre_postprocessing.plot_coco import Figure
 
 if __name__ == '__main__':
 
-    model = read_model()
-    scenario = model['scenario']
+    # Settings from model.json
+    with open('model.json', 'r') as handle:
+        model = json.load(handle)
     function_type = model['function_type']  # types of functions. coco:1, normal:2
-    opt_read = model['opt_read']  # bool: read input points from data.csv
+    coco_id = model['coco_id'] # COCO test function id
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
-    grid_size = model['grid_size']  # grid size for plotting
+    constrained = model['constrained']  # bool: constraints on/off
+    num_constraints = model['num_constraints']  # number of constraints
     lb = model['lower_bounds'] * np.ones(dim)
     ub = model['upper_bounds'] * np.ones(dim)
+    opt_read = model['opt_read']  # bool: read input points from data.csv
+    grid_size = model['grid_size']  # grid size for plotting 
 
+    # Optimum and initial points
     xopt = np.array([2, 1])
     fopt = 10
     ystar = np.array([-4, 2])
-    points = model['points']
-    x_init = np.random.uniform(low=lb, high=ub, size=(points, dim))
+    # xinit = np.random.uniform(low=lb, high=ub, size=(dim))
+    xinit = lb + (ub-lb)/2
     x = [xopt, fopt, ystar]
 
-    # objective function and constraint computation
-    if scenario == 'evaluate':
-        optimizer = (Optimizer(model, x, x_init))
-        counter = 0
-        cons = {}
-        f = optimizer.get_f(x_init)
-        g = optimizer.get_g(x_init).T
-        print(f'function (points, dimension): {f.shape} \n {f}')
-        print(f'constraints (points, constraints number): {g.shape} \n {g}')
-        exit()
-    elif scenario == 'optimize': # optimization process
-        optimizer = []
-        result = []
-        for x_init_elm in x_init:
-            optimizer.append(Optimizer(model, x, x_init_elm))
-        time_start = timer()
-        if function_type == 1:  # 1: coco function
-            counter = 0
-            cons = {}
-            for opt in optimizer:
-                res, test_function, cons = opt.run_coco(counter, cons)
-                result.append(res)
-                counter += 1
-        else:  # other types of functions
-            pass
+    # Test function
+    test_function = COCOTestFunction(model, dim, constrained, num_constraints, lb, ub, xopt, fopt, ystar)
 
-        time_opti = timer() - time_start
-        print(f"The solution is :\n {result}")
-        print("Optimization finished after %f seconds." % time_opti)
-        if dim == 2:
-            figure = Figure(dim, model)
-            a = optimizer[0].get_a()
-            figure.contour(test_function, grid_size, a)
-            figure.init_points(model['constrained'], x_init, ystar)
-            for res in result:
-                figure.solution_points(res["x"])
-            plt.show()
+    # Get responses: objective function f and constraints g
+    def get_f(x):
+        return test_function.evaluate(x)
+
+    def get_g(x,a):
+        return test_function.compute_g(x,a)
+
+    def get_resp(x,a):
+        f = test_function.evaluate(x)
+        f = f.reshape(1,-1)
+        g = test_function.compute_g(x,a)
+        return np.concatenate((f,g))
+
+    # Optimization process
+    time_start = timer()
+    if function_type == 1:  # 1: coco function
+        if constrained:
+            a = test_function.initialize_constraint_parameters(grid_size)
+            cons = {'type': 'ineq', 'fun': lambda x: get_g(x,a)}
+        else:
+            a = None
+            cons = ()
+        bounds = Bounds(lb, ub)
+        opti_result = minimize(lambda x: get_f(x),
+                                xinit, args=(),
+                                method='COBYLA',
+                                constraints=cons,
+                                bounds=bounds,
+                                tol=1e-3)
+
+    else:  # other types of functions
+        pass # TODO
+
+    # Print & plot results
+    time_opti = timer() - time_start
+    print(f"The solution is :\n {opti_result}")
+    print("Optimization finished after %f seconds." % time_opti)
+    if dim == 2:
+        figure = Figure(dim, model)
+        figure.contour(test_function, grid_size, a)
+        figure.init_points(constrained, xinit, ystar)
+        figure.solution_points(opti_result["x"])
+        plt.show()
+
+    # Test vectorization ability
+    """
+    The objective function is sent an x array with x.shape == (s, dim),
+    and is expected to return an array of shape (s,),
+    where s is the number of solution vectors to be calculated.
+    If constraints are applied, the constraint function is sent an 
+    x array with x.shape == (s, dim), and is expected to return an array
+    of shape (m, s), where m is the number of constraint components.
+    """
+    s=5
+    x_test = np.random.uniform(low=lb, high=ub, size=(s,dim))
+    
+    f_test = get_f(x_test)
+    if f_test.shape != (s,):
+        warn('Objective function can not handle vectorized inputs.')
+    
+    if constrained:
+        g_test = get_g(x_test,a)
+        resp_test = get_resp(x_test,a)
+        if g_test.shape != (num_constraints, s):
+            warn('Constraint functions can not handle vectorized inputs.')
+        if resp_test.shape != (num_constraints+1, s):
+            warn('Response functions can not handle vectorized inputs.')
+
+# %%
