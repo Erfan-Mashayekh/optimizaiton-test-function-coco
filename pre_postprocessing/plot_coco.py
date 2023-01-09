@@ -10,27 +10,27 @@ class Figure:
         self.dim = dim
 
     def contour(self, test_function, grid_size, a):
-        x1_mesh, x2_mesh, f = test_function.grid(grid_size)
-        f = f.reshape(x1_mesh.shape)
+        mesh, f = test_function.grid(grid_size)
+        f = f.reshape(mesh[0].shape)
 
         self.fig, self.ax = plt.subplots(1, 1)
         if self.log_scale:
-            cp = self.ax.contour(x1_mesh, x2_mesh, np.log(f), cmap='rainbow')
+            cp = self.ax.contour(mesh[0], mesh[1], np.log(f), cmap='rainbow')
         else:
-            cp = self.ax.contour(x1_mesh, x2_mesh, f, cmap='rainbow')
+            cp = self.ax.contour(mesh[0], mesh[1], f, cmap='rainbow')
         self.fig.colorbar(cp)
 
         x = np.zeros((f.size, self.dim))
-        x[:, 0] = np.reshape(x1_mesh, f.size)
-        x[:, 1] = np.reshape(x2_mesh, f.size)
+        x[:, 0] = np.reshape(mesh[0], f.size)
+        x[:, 1] = np.reshape(mesh[1], f.size)
 
         if test_function.constrained:
             alpha = 0.9
             g = test_function.compute_g(x, a)
             for i in range(test_function.num_constraints):
                 g_reshaped = np.reshape(g[i, :], f.shape) < 0
-                self.ax.contourf(x1_mesh, x2_mesh, g_reshaped, cmap='Greys', alpha=alpha)
-                self.ax.contour(x1_mesh, x2_mesh, g_reshaped,
+                self.ax.contourf(mesh[0], mesh[1], g_reshaped, cmap='Greys', alpha=alpha)
+                self.ax.contour(mesh[0], mesh[1], g_reshaped,
                                 linewidths=1.0,
                                 levels=0,
                                 colors='black')

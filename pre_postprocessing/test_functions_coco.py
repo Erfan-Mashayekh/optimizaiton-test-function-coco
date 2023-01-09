@@ -64,15 +64,21 @@ class COCOTestFunction:
             return f
 
     def grid(self, grid_size):
-        x1 = np.linspace(self.lb[0], self.ub[0], grid_size)
-        x2 = np.linspace(self.lb[1], self.ub[1], grid_size)
-        x1_mesh, x2_mesh = np.meshgrid(x1, x2)
-        x1_reshaped = x1_mesh.reshape((x1_mesh.size, 1))
-        x2_reshaped = x2_mesh.reshape((x2_mesh.size, 1))
-        inputs = np.concatenate((x1_reshaped, x2_reshaped), axis=1)
-        f = self.evaluate(inputs)
+        """
+        Generate an N-dimensional grid based on the parameter 'dim'
+        :param grid_size: the size of the grid
+        :return: x:
+        """
+        args = []
+        for i in range(self.dim):
+            args.append(np.linspace(self.lb[1], self.ub[1], grid_size))
 
-        return x1_mesh, x2_mesh, f
+        mesh = np.array(np.meshgrid(*args))
+        mesh_reshaped = mesh.reshape((mesh.shape[0], mesh[0].size)).T
+
+        f = self.evaluate(mesh_reshaped)
+
+        return mesh, f
 
     def compute_a(self, alpha, grid):
         """
@@ -80,19 +86,23 @@ class COCOTestFunction:
         """
         # TODO: work for N dimension
         self.a = np.zeros((self.num_constraints, self.dim))
-        x1, x2, f = grid
-        f = f.reshape(x1.shape)
+        mesh, f = grid
+        f = f.reshape(mesh[0].shape)
         f_shape = list(f.shape)
         f_shape.insert(0, self.dim)
         grad_f = np.zeros(tuple(f_shape))
+        print(f"f: \n {f}")
 
         # TODO: check gradient computation
         for i in range(self.dim):
             grad_f[i, :] = np.gradient(f, axis=(self.dim - i - 1))
+        #grad_f = np.array(np.gradient(f))
+
+        print(f"grad_f: \n {grad_f.shape}")
 
         # TODO: find the location of the y_star in grad_f
-        x1_idx = (np.abs(x1[0, :] - self.ystar[0])).argmin()
-        x2_idx = (np.abs(x2[:, 0] - self.ystar[1])).argmin()
+        x1_idx = (np.abs(mesh[0, :] - self.ystar[0])).argmin()
+        x2_idx = (np.abs(mesh[:, 0] - self.ystar[1])).argmin()
         grad_f_ystar = grad_f[:, x2_idx, x1_idx]
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
         self.a[1:, :] = np.random.normal(self.a[0, :], 0.8, size=(self.num_constraints - 1, self.dim))
