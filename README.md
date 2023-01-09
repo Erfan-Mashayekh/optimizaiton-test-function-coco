@@ -8,10 +8,13 @@
  |                                                                         |                                    | unconstrained condition for a `n x m` input `x` works |
 |                                                                         |                                    | constrained condition for `n x 2` input `x` works     |
 |                                                                         |                                    | Refactor and generalize the inpu                      |
-| constrained condition for `n x m` input `x` & `m > 2`                   |                                    |                                                       |
+|                    |                                    |    constrained condition for `n x m` input `x` & `m > 2`                                                   |
 |                                                                         | Add the rest of the test functions |                                                       |
 | Add Rastrigin function (F15 in bbob testsuite)                          |                                    |                                                       |
 | Generalize the process of biases `b` generation in `compute_g` function |                                    |                                                       |
+
+### Jan 10th, 2023
+1. Extension to higher dimensions constraints
 
 
 ### December 14th, 2022
