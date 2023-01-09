@@ -40,21 +40,21 @@ if __name__ == '__main__':
     def get_f(x):
         return test_function.evaluate(x)
 
-    def get_g(x,a):
-        return test_function.compute_g(x,a)
+    def get_g(x, a):
+        return test_function.compute_g(x, a)
 
-    def get_resp(x,a):
+    def get_resp(x, a):
         f = test_function.evaluate(x)
-        f = f.reshape(1,-1)
-        g = test_function.compute_g(x,a)
-        return np.concatenate((f,g))
+        f = f.reshape(1, -1)
+        g = test_function.compute_g(x, a)
+        return np.concatenate((f, g))
 
     # Optimization process
     time_start = timer()
     if function_type == 1:  # 1: coco function
         if constrained:
             a = test_function.initialize_constraint_parameters(grid_size)
-            cons = {'type': 'ineq', 'fun': lambda x: get_g(x,a)}
+            cons = {'type': 'ineq', 'fun': lambda x: get_g(x, a)}
         else:
             a = None
             cons = ()
