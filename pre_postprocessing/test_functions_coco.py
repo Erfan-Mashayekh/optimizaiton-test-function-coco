@@ -75,6 +75,9 @@ class COCOTestFunction:
         return x1_mesh, x2_mesh, f
 
     def compute_a(self, alpha, grid):
+        """
+        Compute coefficient 'a' which helps to generate a random slope for a linear constraint.
+        """
         # TODO: work for N dimension
         self.a = np.zeros((self.num_constraints, self.dim))
         x1, x2, f = grid
