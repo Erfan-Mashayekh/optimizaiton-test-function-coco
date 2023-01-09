@@ -7,6 +7,6 @@
   "lower_bounds": -10,
   "upper_bounds": 10,
   "opt_read": false,
-  "log_scale": true,
+  "log_scale": false,
   "grid_size": 200
 }

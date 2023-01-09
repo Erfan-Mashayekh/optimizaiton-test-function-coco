@@ -72,45 +72,36 @@ class COCOTestFunction:
         args = []
         for i in range(self.dim):
             args.append(np.linspace(self.lb[1], self.ub[1], grid_size))
-
         mesh = np.array(np.meshgrid(*args))
         mesh_reshaped = mesh.reshape((mesh.shape[0], mesh[0].size)).T
-
         f = self.evaluate(mesh_reshaped)
 
         return mesh, f
 
-    def compute_a(self, alpha, grid):
+    def compute_a(self, alpha, grid, grid_size):
         """
         Compute coefficient 'a' which helps to generate a random slope for a linear constraint.
         """
-        # TODO: work for N dimension
         self.a = np.zeros((self.num_constraints, self.dim))
         mesh, f = grid
         f = f.reshape(mesh[0].shape)
-        f_shape = list(f.shape)
-        f_shape.insert(0, self.dim)
-        grad_f = np.zeros(tuple(f_shape))
-        print(f"f: \n {f}")
+        grad_f = np.array(np.gradient(f.T))   # TODO: check if transpose works for higher dimensions
+        grid_points = np.linspace(self.lb[1], self.ub[1], grid_size)
 
-        # TODO: check gradient computation
+        index = []
         for i in range(self.dim):
-            grad_f[i, :] = np.gradient(f, axis=(self.dim - i - 1))
-        #grad_f = np.array(np.gradient(f))
+            index.append((np.abs(grid_points - self.ystar[i])).argmin())
+        grad_f_ystar = np.zeros(self.dim)
+        for i in range(self.dim):
+            grad_f_ystar[i] = grad_f[i][tuple(index)]
 
-        print(f"grad_f: \n {grad_f.shape}")
-
-        # TODO: find the location of the y_star in grad_f
-        x1_idx = (np.abs(mesh[0, :] - self.ystar[0])).argmin()
-        x2_idx = (np.abs(mesh[:, 0] - self.ystar[1])).argmin()
-        grad_f_ystar = grad_f[:, x2_idx, x1_idx]
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
         self.a[1:, :] = np.random.normal(self.a[0, :], 0.8, size=(self.num_constraints - 1, self.dim))
 
     def initialize_constraint_parameters(self, grid_size):
         alpha = np.ones(self.num_constraints)
         b = np.zeros(self.num_constraints)
-        self.compute_a(alpha[0], self.grid(grid_size))
+        self.compute_a(alpha[0], self.grid(grid_size), grid_size)
         return self.a
 
     def compute_g(self, x, a):
