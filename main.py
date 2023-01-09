@@ -25,8 +25,7 @@ if __name__ == '__main__':
     x_init = np.random.uniform(low=lb, high=ub, size=(points, dim))
     x = [xopt, fopt, ystar]
 
-    # objective function and constraint computation
-    if scenario == 'evaluate':
+    if scenario == 'evaluate':  # evaluate objective function and constraint computation
         optimizer = (Optimizer(model, x, x_init))
         counter = 0
         cons = {}
@@ -35,7 +34,7 @@ if __name__ == '__main__':
         print(f'function (points, dimension): {f.shape} \n {f}')
         print(f'constraints (points, constraints number): {g.shape} \n {g}')
         exit()
-    elif scenario == 'optimize': # optimization process
+    elif scenario == 'optimize':  # optimize the points
         optimizer = []
         result = []
         for x_init_elm in x_init:

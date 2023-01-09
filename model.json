@@ -1,5 +1,5 @@
 {
-  "scenario": "evaluate",  // 1.evaluate,  2. optimize
+  "scenario": "optimize",  // 1.evaluate,  2. optimize
   "function_type": 1,  // Types of functions: coco:1, normal:2
   "coco_id": 1,  // Set the function id
   "constrained": true,  // True if there are contraints

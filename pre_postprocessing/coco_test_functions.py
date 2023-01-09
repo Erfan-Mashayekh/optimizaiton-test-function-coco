@@ -64,6 +64,11 @@ class COCOTestFunction:
             f = np.sum(5 * abs(s) - s * z, axis=-1) + self.fopt
             return f
 
+        elif self.coco_id == 15:  # F15: Rastrigin function
+            z = tosz(x - self.xopt)
+            i = (np.arange(self.dim) + 1)
+            f = np.sum(10 ** (6 * (i - 1) / (self.dim - 1)) * z ** 2, axis=-1) + self.fopt
+            return f
     def grid(self, grid_size):
         x1 = np.linspace(self.lb[0], self.ub[0], grid_size)
         x2 = np.linspace(self.lb[1], self.ub[1], grid_size)
