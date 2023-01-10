@@ -78,7 +78,7 @@ class COCOTestFunction:
 
         return mesh, f
 
-    def compute_a(self, alpha, grid, grid_size):
+    def compute_a(self, alpha, grid, grid_size, constraints_seed):
         """
         Compute coefficient 'a' which helps to generate a random slope for a linear constraint.
         """
@@ -96,12 +96,14 @@ class COCOTestFunction:
             grad_f_ystar[i] = grad_f[i][tuple(index)]
 
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
+        np.random.seed(constraints_seed)
         self.a[1:, :] = np.random.normal(self.a[0, :], 0.8, size=(self.num_constraints - 1, self.dim))
 
-    def initialize_constraint_parameters(self, grid_size):
+
+    def initialize_constraint_parameters(self, grid_size, constraints_seed):
         alpha = np.ones(self.num_constraints)
         b = np.zeros(self.num_constraints)
-        self.compute_a(alpha[0], self.grid(grid_size), grid_size)
+        self.compute_a(alpha[0], self.grid(grid_size), grid_size, constraints_seed)
         return self.a
 
     def compute_g(self, x, a):
