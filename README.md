@@ -15,6 +15,7 @@
 
 ### Jan 10th, 2023
 1. Extension to higher dimensions constraints
+2. Add seed to constraints
 
 
 ### December 14th, 2022
