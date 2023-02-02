@@ -31,8 +31,9 @@ if __name__ == '__main__':
     fopt = 10
     ystar = np.array([-4, 2])
     # xinit = np.random.uniform(low=lb, high=ub, size=(dim))
+    # xinit = np.random.uniform(low=lb, high=ub, size=(5,dim))
     xinit = lb + (ub-lb)/2
-    x = [xopt, fopt, ystar]
+    # x = [xopt, fopt, ystar]
 
     # Test function
     test_function = COCOTestFunction(model, dim, constrained, num_constraints, lb, ub, xopt, fopt, ystar)
@@ -59,7 +60,7 @@ if __name__ == '__main__':
         else:
             a = None
             cons = ()
-        bounds = Bounds(lb, ub)
+        bounds = Bounds(lb, ub)        
         opti_result = minimize(lambda x: get_f(x),
                                 xinit, args=(),
                                 method='COBYLA',
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     x_test = np.random.uniform(low=lb, high=ub, size=(s,dim))
     
     f_test = get_f(x_test)
-    if f_test.shape != (s,):
+    if f_test.shape != (s,):        
         warn('Objective function can not handle vectorized inputs.')
     
     if constrained:

@@ -1,12 +1,12 @@
 {
   "function_type": 1,
-  "coco_id": 1,
+  "coco_id": 15,
   "dimensions": 2,
   "constrained": true,
   "num_constraints": 3,
   "constraints_seed": 1,
-  "lower_bounds": -10,
-  "upper_bounds": 10,
+  "lower_bounds": -5,
+  "upper_bounds": 5,
   "opt_read": false,
   "log_scale": false,
   "grid_size": 200

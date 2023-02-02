@@ -10,17 +10,9 @@ Functions mostly from: https://www.sfu.ca/~ssurjano/index.html
 """
 import numpy as np
 
+from ioh import problem
+from ioh import get_problem, ProblemType
 
-def tosz(x):
-    """
-    Non-Linear Transformation
-    Rn → Rn,  for any positive integer n (n = 1 and n = dim are used in the following), maps element-wise
-    """
-    xhat = np.where(x != 0, np.log(np.abs(x)), 0)
-    c1 = np.where(x > 0, 7.9, 3.1)
-    c2 = np.where(x > 0, 10.0, 5.5)
-
-    return np.sign(x) * np.exp(xhat + 0.049 * (np.sin(c1 * xhat) + np.cos(c2 * xhat)))
 
 
 class COCOTestFunction:
@@ -40,32 +32,23 @@ class COCOTestFunction:
         self.xopt = xopt
         self.fopt = fopt
         self.ystar = ystar
-
+        
         self.a = np.zeros((self.num_constraints, self.dim))
 
-    def evaluate(self, x):
+    def evaluate(self, x): 
+        f = get_problem(self.coco_id, 10, self.dim, ProblemType.BBOB)
+        if x.size <= self.dim:
+            return f(x)
+        else:
+            f_list = np.empty(x.shape[0])
+            for i in range(x.shape[0]):
+                f_list[i] = f(x[i]) 
+            return f_list
 
-        if self.coco_id == 1:  # F1: Sphere Function
-            z = x - self.xopt
-            f = np.sum(z ** 2, axis=-1) + self.fopt
-            return f
-
-        elif self.coco_id == 2:  # F2: Separable Ellipsoidal Function
-            z = tosz(x - self.xopt)
-            i = (np.arange(self.dim) + 1)
-            f = np.sum(10 ** (6 * (i - 1) / (self.dim - 1)) * z ** 2, axis=-1) + self.fopt
-            return f
-
-        elif self.coco_id == 5:  # F5: Linear Slop
-            z = np.where(self.xopt * x < 5 ** 2, x, self.xopt)
-            i = (np.arange(self.dim) + 1)
-            s = np.sign(self.xopt) * 10 ** ((i - 1) / (self.dim - 1))
-            f = np.sum(5 * abs(s) - s * z, axis=-1) + self.fopt
-            return f
 
     def grid(self, grid_size):
         """
-        Generate an N-dimensional grid based on the parameter 'dim'
+        Generate an d-dimensional grid based on the parameter 'dim'
         :param grid_size: the size of the grid
         :return: x:
         """
@@ -85,9 +68,9 @@ class COCOTestFunction:
         self.a = np.zeros((self.num_constraints, self.dim))
         mesh, f = grid
         f = f.reshape(mesh[0].shape)
-        grad_f = np.array(np.gradient(f.T))   # TODO: check if transpose works for higher dimensions
+        grad_f = np.array(np.gradient(f.T))  # TODO: check if transpose works for higher dimensions
         grid_points = np.linspace(self.lb[1], self.ub[1], grid_size)
-
+        #TODO: find y_star neighbors
         index = []
         for i in range(self.dim):
             index.append((np.abs(grid_points - self.ystar[i])).argmin())
@@ -98,7 +81,6 @@ class COCOTestFunction:
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
         np.random.seed(constraints_seed)
         self.a[1:, :] = np.random.normal(self.a[0, :], 0.8, size=(self.num_constraints - 1, self.dim))
-
 
     def initialize_constraint_parameters(self, grid_size, constraints_seed):
         alpha = np.ones(self.num_constraints)
