@@ -1,17 +1,21 @@
 # Coco-optimization
 
 
-## Kanban 
-| ToDo                                                                    | Doing                              | Done                                                  |
-|-------------------------------------------------------------------------|------------------------------------|-------------------------------------------------------|
- |                                                                         |                                    | Read inputs from the input.json                       |
- |                                                                         |                                    | unconstrained condition for a `n x m` input `x` works |
-|                                                                         |                                    | constrained condition for `n x 2` input `x` works     |
-|                                                                         |                                    | Refactor and generalize the inpu                      |
-|                    |                                    |    constrained condition for `n x m` input `x` & `m > 2`                                                   |
-|                                                                         | Add the rest of the test functions |                                                       |
-| Add Rastrigin function (F15 in bbob testsuite)                          |                                    |                                                       |
-| Generalize the process of biases `b` generation in `compute_g` function |                                    |                                                       |
+## Kanban
+| ToDo                                                                    | Doing                                     | Done                                                |
+|-------------------------------------------------------------------------|-------------------------------------------|-----------------------------------------------------|
+ |                                                                         |                                           | Read inputs from the input.json                     |
+ |                                                                         |                                           | unconstrained condition for a `n x m` input `x` works ||                                                                         |                                    | constrained condition for `n x 2` input `x` works     |
+|                                                                         |                                           | Refactor and generalize the inpu                    |
+|                                                                         |                                           | constrained condition for `n x m` input `x` & `m > 2` |
+|                                                                         | ~~Add the rest of the test functions~~    |                                                     |
+| ~~Add Rastrigin function (F15 in bbob testsuite)~~                      |                                           |                                                     |
+|  |                                           | Use IOH library to implement functions              |
+|  | Implement constraints in an efficient way |                                                     |
+| Generalize the process of biases `b` generation in `compute_g` function |                                           |                                                     |
+
+### Feb 3rd, 2023
+1. Use IOH library for our code (Unconstrained functions both for `get_f` and optimizations)
 
 ### Jan 10th, 2023
 1. Extension to higher dimensions constraints
