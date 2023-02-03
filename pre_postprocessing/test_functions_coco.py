@@ -36,7 +36,7 @@ class COCOTestFunction:
         self.a = np.zeros((self.num_constraints, self.dim))
 
     def evaluate(self, x): 
-        f = get_problem(self.coco_id, 10, self.dim, ProblemType.BBOB)
+        f = get_problem(self.coco_id, 10, self.dim, ProblemType.BBOB)  #TODO: Implement the number instances (10 here!) 
         if x.size <= self.dim:
             return f(x)
         else:

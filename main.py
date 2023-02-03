@@ -31,8 +31,9 @@ if __name__ == '__main__':
     fopt = 10
     ystar = np.array([-4, 2])
     # xinit = np.random.uniform(low=lb, high=ub, size=(dim))
-    # xinit = np.random.uniform(low=lb, high=ub, size=(5,dim))
-    xinit = lb + (ub-lb)/2
+    xinit = np.random.uniform(low=lb, high=ub, size=(5,dim))
+    #xinit = lb + (ub-lb)/2
+    print(xinit.shape)
     # x = [xopt, fopt, ystar]
 
     # Test function
@@ -53,6 +54,7 @@ if __name__ == '__main__':
 
     # Optimization process
     time_start = timer()
+    opti_result = []
     if function_type == 1:  # 1: coco function
         if constrained:
             a = test_function.initialize_constraint_parameters(grid_size, constraints_seed)
@@ -60,27 +62,37 @@ if __name__ == '__main__':
         else:
             a = None
             cons = ()
-        bounds = Bounds(lb, ub)        
-        opti_result = minimize(lambda x: get_f(x),
-                                xinit, args=(),
-                                method='COBYLA',
-                                constraints=cons,
-                                bounds=bounds,
-                                tol=1e-3)
-
+        bounds = Bounds(lb, ub)
+        if xinit.shape[0] <= 2:
+            opti_result.append(minimize(lambda x: get_f(x),
+                                    xinit, args=(),
+                                    method='COBYLA',
+                                    constraints=cons,
+                                    bounds=bounds,
+                                    tol=1e-3))
+        else:
+            for xv in xinit:
+                opti_result.append(minimize(lambda x: get_f(x),
+                                        xv, args=(),
+                                        method='COBYLA',
+                                        constraints=cons,
+                                        bounds=bounds,
+                                        tol=1e-3))
     else:  # other types of functions
         pass # TODO
 
     # Print & plot results
     time_opti = timer() - time_start
-    print(f"The solution is :\n {opti_result}")
-    print("Optimization finished after %f seconds." % time_opti)
+    for i in range(np.array(opti_result).shape[0]):
+        print(f"The solution for input point: {xinit[i]}\n {opti_result[i]}")
+        print(f"Optimization finished after {time_opti} seconds.\n")
+
     if dim == 2:
         figure = Figure(dim, model)
         figure.contour(test_function, grid_size, a)
         figure.init_points(constrained, xinit, ystar)
-        figure.solution_points(opti_result["x"])
-        plt.show()
+        figure.solution_points(opti_result[0]["x"])
+    plt.show()
 
     # Test vectorization ability
     """
