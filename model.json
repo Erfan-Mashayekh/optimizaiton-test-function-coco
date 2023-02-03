@@ -1,7 +1,7 @@
 {
   "function_type": 1,
   "coco_id": 15,
-  "dimensions": 10,
+  "dimensions": 2,
   "constrained": false,
   "num_constraints": 3,
   "constraints_seed": 1,
