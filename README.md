@@ -11,7 +11,7 @@
 |                                                                         | ~~Add the rest of the test functions~~    |                                                     |
 | ~~Add Rastrigin function (F15 in bbob testsuite)~~                      |                                           |                                                     |
 |  |                                           | Use IOH library to implement functions              |
-|  | Implement constraints in an efficient way |                                                     |
+|  |  |  Implement constraints in an efficient way                                                   |
 | Generalize the process of biases `b` generation in `compute_g` function |                                           |                                                     |
 
 ### Feb 3rd, 2023
