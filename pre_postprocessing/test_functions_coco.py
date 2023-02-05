@@ -66,30 +66,17 @@ class COCOTestFunction:
         """
         Compute coefficient 'a' which helps to generate a random slope for a linear constraint.
         """
-        # Generate 3 grid points around ystar in each coordinate
-        args = []
+        # Generate 3 grid points around ystar in each coordinate and 
+        # compute the gradient at this point using 2nd order finite difference method
         delta = (self.ub[0]-self.lb[0]) / (grid_size-1)
-        for i in range(self.dim):
-            grid_points = np.array([self.ystar[i] - delta, 
-                                    self.ystar[i],
-                                    self.ystar[i] + delta])
-            args.append(grid_points)  
-
-        mesh = np.array(np.meshgrid(*args))
-        mesh_reshaped = mesh.reshape((mesh.shape[0], mesh[0].size)).T
-
-        # evaluate the coco function and the its gradients in this small region
-        f = self.evaluate(mesh_reshaped)
-        f = f.reshape(mesh[0].shape)
-        grad_f = np.array(np.gradient(f.T))
-
-        # allocate the gardient of the center point to ystar at each coordinate
-        dim = 0
+        print(f'delta : {delta}')
         grad_f_ystar = np.empty(self.dim)
-        for grad_dim in grad_f:
-            index = np.ones(self.dim, dtype=np.uint32)
-            grad_f_ystar[dim] = grad_dim[tuple(index)]
-            dim =+ 1
+        for i in range(self.dim):
+            lower_point = np.copy(self.ystar)
+            lower_point[i] = lower_point[i] - delta            
+            upper_point = np.copy(self.ystar)
+            upper_point[i] = self.ystar[i] + delta
+            grad_f_ystar[i] = (self.problem(upper_point) - self.problem(lower_point)) / (2*delta)
 
         # compute the value of coefficient 'a' based on ystar poisition and its gradiend
         self.a = np.zeros((self.num_constraints, self.dim))
@@ -117,3 +104,4 @@ class COCOTestFunction:
         Computes the error of the optimal point
         """
         return np.linalg.norm(result['x'] - self.problem.optimum.x)
+# %%

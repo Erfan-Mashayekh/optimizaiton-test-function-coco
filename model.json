@@ -1,8 +1,8 @@
 {
   "function_type": 1,
   "coco_id": 1,
-  "dimensions": 15,
-  "nr_samples": 1,
+  "dimensions": 40,
+  "nr_samples": 10,
   "instance": 1,
   "constrained": true,
   "num_constraints": 3,
