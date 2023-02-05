@@ -17,8 +17,8 @@ if __name__ == '__main__':
         model = json.load(handle)
     function_type = model['function_type']  # types of functions. coco:1, normal:2
     coco_id = model['coco_id'] # COCO test function id
-    nr_samples = model['nr_samples']
-    instance = model['instance']
+    nr_samples = model['nr_samples'] # number of data points used in evaluation
+    instance = model['instance'] # instance id of the IOH problem
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
     constrained = model['constrained']  # bool: constraints on/off
     num_constraints = model['num_constraints']  # number of constraints
