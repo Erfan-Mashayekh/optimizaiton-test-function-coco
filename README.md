@@ -14,6 +14,10 @@
 |  |  |  Implement constraints in an efficient way                                                   |
 | Generalize the process of biases `b` generation in `compute_g` function |                                           |                                                     |
 
+### Feb 5th, 2023
+1. implement error function to check the accuracy of the optimization method used in scipy
+2. implement constraints in an efficient way
+
 ### Feb 3rd, 2023
 1. Use IOH library for our code (Unconstrained functions both for `get_f` and optimizations)
 
