@@ -17,6 +17,7 @@ if __name__ == '__main__':
         model = json.load(handle)
     function_type = model['function_type']  # types of functions. coco:1, normal:2
     coco_id = model['coco_id'] # COCO test function id
+    instance = model['instance']
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
     constrained = model['constrained']  # bool: constraints on/off
     num_constraints = model['num_constraints']  # number of constraints
@@ -31,13 +32,15 @@ if __name__ == '__main__':
     fopt = 10
     ystar = np.array([-4, 2])
     # xinit = np.random.uniform(low=lb, high=ub, size=(dim))
-    xinit = np.random.uniform(low=lb, high=ub, size=(5,dim))
-    #xinit = lb + (ub-lb)/2
+    # xinit = np.random.uniform(low=lb, high=ub, size=(5,dim))
+    # xinit = lb + (ub-lb)/2
+    # xinit = np.array([3, 2])
+    xinit = np.array([[3, 2], [4, 3], [-3, -2]])
     print(xinit.shape)
     # x = [xopt, fopt, ystar]
 
     # Test function
-    test_function = COCOTestFunction(model, dim, constrained, num_constraints, lb, ub, xopt, fopt, ystar)
+    test_function = COCOTestFunction(model, dim, instance, constrained, num_constraints, lb, ub, xopt, fopt, ystar)
 
     # Get responses: objective function f and constraints g
     def get_f(x):
@@ -86,6 +89,12 @@ if __name__ == '__main__':
     for i in range(np.array(opti_result).shape[0]):
         print(f"The solution for input point: {xinit[i]}\n {opti_result[i]}")
         print(f"Optimization finished after {time_opti} seconds.\n")
+
+    # Compute optimization error
+    print(f'optimization errors for the input list:')
+    for result in opti_result:
+        print(test_function.optimization_error(result))
+        
 
     if dim == 2:
         figure = Figure(dim, model)

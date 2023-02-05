@@ -14,17 +14,17 @@ from ioh import problem
 from ioh import get_problem, ProblemType
 
 
-
 class COCOTestFunction:
     """
     Usually evaluated on [-5,5]^d
     Global minimum at x_i=1 where f(x)=0
     """
 
-    def __init__(self, model, dim, constrained, num_constraints, lb, ub, xopt, fopt, ystar):
+    def __init__(self, model, dim, instance, constrained, num_constraints, lb, ub, xopt, fopt, ystar):
 
         self.coco_id = model['coco_id']  # name of test function
         self.dim = dim
+        self.instance = instance
         self.constrained = constrained
         self.num_constraints = num_constraints
         self.lb = lb
@@ -32,18 +32,24 @@ class COCOTestFunction:
         self.xopt = xopt
         self.fopt = fopt
         self.ystar = ystar
-        
+        self.problem = None
         self.a = np.zeros((self.num_constraints, self.dim))
 
-    def evaluate(self, x): 
-        f = get_problem(self.coco_id, 10, self.dim, ProblemType.BBOB)  #TODO: Implement the number instances (10 here!) 
+    def get_coco_problem(self):
+        self.problem = get_problem(self.coco_id, self.instance, self.dim, ProblemType.BBOB)  
+
+    def evaluate(self, x):
+        """
+        Compute the value of the function for the corresponding input 'x'
+        """
+        self.get_coco_problem()
         if x.size <= self.dim:
-            return f(x)
+            return self.problem(x)
         else:
-            f_list = np.empty(x.shape[0])
+            function_list = np.empty(x.shape[0])
             for i in range(x.shape[0]):
-                f_list[i] = f(x[i]) 
-            return f_list
+                function_list[i] = self.problem(x[i]) 
+            return function_list
 
 
     def grid(self, grid_size):
@@ -89,7 +95,16 @@ class COCOTestFunction:
         return self.a
 
     def compute_g(self, x, a):
+        """
+        Compute the linear constraints in the "d-dimensional" space
+        """
         # g = alpha * (a @ (x-self.ystar).T) + b
         g = (a @ (x - self.ystar).T)
         g[1] = g[1] + 2.
         return -g
+
+    def optimization_error(self, result):
+        """
+        Computes the error of the optimal point
+        """
+        return np.linalg.norm(result['x'] - self.problem.optimum.x)
