@@ -17,6 +17,7 @@ if __name__ == '__main__':
         model = json.load(handle)
     function_type = model['function_type']  # types of functions. coco:1, normal:2
     coco_id = model['coco_id'] # COCO test function id
+    nr_samples = model['nr_samples']
     instance = model['instance']
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
     constrained = model['constrained']  # bool: constraints on/off
@@ -28,19 +29,13 @@ if __name__ == '__main__':
     grid_size = model['grid_size']  # grid size for plotting 
 
     # Optimum and initial points
-    xopt = np.array([2, 1])
-    fopt = 10
-    ystar = np.array([-4, 2])
-    # xinit = np.random.uniform(low=lb, high=ub, size=(dim))
-    # xinit = np.random.uniform(low=lb, high=ub, size=(5,dim))
-    # xinit = lb + (ub-lb)/2
-    # xinit = np.array([3, 2])
-    xinit = np.array([[3, 2], [4, 3], [-3, -2]])
-    print(xinit.shape)
-    # x = [xopt, fopt, ystar]
-
+    ystar = np.random.uniform(low=lb, high=ub, size=(dim))
+    if nr_samples > 1:
+        xinit = np.random.uniform(low=lb, high=ub, size=(nr_samples, dim))
+    else:
+        xinit = np.random.uniform(low=lb, high=ub, size=(dim))
     # Test function
-    test_function = COCOTestFunction(model, dim, instance, constrained, num_constraints, lb, ub, xopt, fopt, ystar)
+    test_function = COCOTestFunction(model, dim, instance, constrained, num_constraints, lb, ub, ystar)
 
     # Get responses: objective function f and constraints g
     def get_f(x):
@@ -66,7 +61,7 @@ if __name__ == '__main__':
             a = None
             cons = ()
         bounds = Bounds(lb, ub)
-        if xinit.shape[0] <= 2:
+        if nr_samples == 1:
             opti_result.append(minimize(lambda x: get_f(x),
                                     xinit, args=(),
                                     method='COBYLA',
@@ -75,6 +70,8 @@ if __name__ == '__main__':
                                     tol=1e-3))
         else:
             for xv in xinit:
+                print(f'xinit : {xinit}')
+                print(f'xv : {xv}')
                 opti_result.append(minimize(lambda x: get_f(x),
                                         xv, args=(),
                                         method='COBYLA',

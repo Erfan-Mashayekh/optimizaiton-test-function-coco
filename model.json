@@ -1,14 +1,15 @@
 {
   "function_type": 1,
   "coco_id": 1,
-  "dimensions": 2,
+  "dimensions": 15,
+  "nr_samples": 1,
   "instance": 1,
-  "constrained": false,
+  "constrained": true,
   "num_constraints": 3,
   "constraints_seed": 1,
   "lower_bounds": -5,
   "upper_bounds": 5,
   "opt_read": false,
   "log_scale": false,
-  "grid_size": 200
+  "grid_size": 201
 }
