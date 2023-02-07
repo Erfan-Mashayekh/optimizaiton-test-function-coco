@@ -69,7 +69,6 @@ class COCOTestFunction:
         # Generate 3 grid points around ystar in each coordinate and 
         # compute the gradient at this point using 2nd order finite difference method
         delta = (self.ub[0]-self.lb[0]) / (grid_size-1)
-        print(f'delta : {delta}')
         grad_f_ystar = np.empty(self.dim)
         for i in range(self.dim):
             lower_point = np.copy(self.ystar)

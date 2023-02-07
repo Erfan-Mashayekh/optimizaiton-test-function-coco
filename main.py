@@ -70,8 +70,6 @@ if __name__ == '__main__':
                                     tol=1e-3))
         else:
             for xv in xinit:
-                print(f'xinit : {xinit}')
-                print(f'xv : {xv}')
                 opti_result.append(minimize(lambda x: get_f(x),
                                         xv, args=(),
                                         method='COBYLA',
