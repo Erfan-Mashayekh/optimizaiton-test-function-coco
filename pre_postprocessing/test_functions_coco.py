@@ -32,7 +32,6 @@ class COCOTestFunction:
         self.ystar = ystar
         self.problem = get_problem(self.coco_id, self.instance, self.dim, ProblemType.BBOB)  
         self.a = np.zeros((self.num_constraints, self.dim))
-        
 
     def evaluate(self, x):
         """
@@ -45,7 +44,6 @@ class COCOTestFunction:
             for i in range(x.shape[0]):
                 function_list[i] = self.problem(x[i]) 
             return function_list
-
 
     def grid(self, grid_size):
         """
@@ -69,6 +67,7 @@ class COCOTestFunction:
         # Generate 3 grid points around ystar in each coordinate and 
         # compute the gradient at this point using 2nd order finite difference method
         delta = (self.ub[0]-self.lb[0]) / (grid_size-1)
+        print(f'delta : {delta}')
         grad_f_ystar = np.empty(self.dim)
         for i in range(self.dim):
             lower_point = np.copy(self.ystar)
@@ -77,12 +76,11 @@ class COCOTestFunction:
             upper_point[i] = self.ystar[i] + delta
             grad_f_ystar[i] = (self.problem(upper_point) - self.problem(lower_point)) / (2*delta)
 
-        # compute the value of coefficient 'a' based on ystar poisition and its gradiend
+        # compute the value of coefficient 'a' based on ystar position and its gradient
         self.a = np.zeros((self.num_constraints, self.dim))
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
         np.random.seed(constraints_seed)
-        # TODO: maximum rotation must be implemented in another way (it is a value between 0 and 1)
-        self.a[1:, :] = np.random.normal(self.a[0, :], 0.5, size=(self.num_constraints - 1, self.dim)) 
+        self.a[1:, :] = np.random.normal(self.a[0, :], 0.9, size=(self.num_constraints - 1, self.dim))
 
     def initialize_constraint_parameters(self, grid_size, constraints_seed):
         alpha = np.ones(self.num_constraints)
@@ -99,9 +97,14 @@ class COCOTestFunction:
         g[1] = g[1] + 2.
         return -g
 
-    def optimization_error(self, result):
+    def optimization_error(self, result, ystar):
         """
         Computes the error of the optimal point
         """
-        return np.linalg.norm(result['x'] - self.problem.optimum.x)
+        # return np.linalg.norm(result['x'] - self.problem.optimum.x)
+        if self.constrained:
+            return result['fun'] - self.evaluate(ystar)
+        else:
+            return result['fun'] - self.problem.optimum.y
+
 # %%
