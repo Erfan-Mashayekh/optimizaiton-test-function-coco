@@ -81,7 +81,8 @@ class COCOTestFunction:
         self.a = np.zeros((self.num_constraints, self.dim))
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
         np.random.seed(constraints_seed)
-        self.a[1:, :] = np.random.normal(self.a[0, :], 0.9, size=(self.num_constraints - 1, self.dim))
+        # TODO: maximum rotation must be implemented in another way (it is a value between 0 and 1)
+        self.a[1:, :] = np.random.normal(self.a[0, :], 0.5, size=(self.num_constraints - 1, self.dim)) 
 
     def initialize_constraint_parameters(self, grid_size, constraints_seed):
         alpha = np.ones(self.num_constraints)

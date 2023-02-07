@@ -1,9 +1,9 @@
 {
   "function_type": 1,
-  "coco_id": 1,
-  "dimensions": 40,
+  "coco_id": 15,
+  "dimensions": 2,
   "nr_samples": 10,
-  "instance": 1,
+  "instance": 10,
   "constrained": true,
   "num_constraints": 3,
   "constraints_seed": 1,
