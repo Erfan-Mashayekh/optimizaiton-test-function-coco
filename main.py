@@ -17,7 +17,6 @@ if __name__ == '__main__':
         model = json.load(handle)
     function_type = model['function_type']  # types of functions. coco:1, normal:2
     coco_id = model['coco_id'] # COCO test function id
-    nr_samples = model['nr_samples'] # number of data points used in evaluation
     instance = model['instance'] # instance id of the IOH problem
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
     constrained = model['constrained']  # bool: constraints on/off
@@ -30,10 +29,8 @@ if __name__ == '__main__':
 
     # Optimum and initial points
     ystar = np.random.uniform(low=lb, high=ub, size=(dim))
-    if nr_samples > 1:
-        xinit = np.random.uniform(low=lb, high=ub, size=(nr_samples, dim))
-    else:
-        xinit = np.random.uniform(low=lb, high=ub, size=(dim))
+    xinit = np.random.uniform(low=lb, high=ub, size=(dim))
+
     # Test function
     test_function = COCOTestFunction(model, dim, instance, constrained, num_constraints, lb, ub, ystar)
 
@@ -52,7 +49,6 @@ if __name__ == '__main__':
 
     # Optimization process
     time_start = timer()
-    opti_result = []
     if function_type == 1:  # 1: coco function
         if constrained:
             a = test_function.initialize_constraint_parameters(grid_size, constraints_seed)
@@ -61,41 +57,27 @@ if __name__ == '__main__':
             a = None
             cons = ()
         bounds = Bounds(lb, ub)
-        if nr_samples == 1:
-            opti_result.append(minimize(lambda x: get_f(x),
-                                    xinit, args=(),
-                                    method='COBYLA',
-                                    constraints=cons,
-                                    bounds=bounds,
-                                    tol=1e-3))
-        else:
-            for xv in xinit:
-                opti_result.append(minimize(lambda x: get_f(x),
-                                        xv, args=(),
-                                        method='COBYLA',
-                                        constraints=cons,
-                                        bounds=bounds,
-                                        tol=1e-3))
+        opti_result = minimize(lambda x: get_f(x),
+                                xinit, args=(),
+                                method='SLSQP',
+                                constraints=cons,
+                                bounds=bounds,
+                                tol=1e-3)
     else:  # other types of functions
         pass # TODO
 
-    # Print & plot results
+    # Print results
     time_opti = timer() - time_start
-    for i in range(np.array(opti_result).shape[0]):
-        print(f"The solution for input point: {xinit[i]}\n {opti_result[i]}")
-        print(f"Optimization finished after {time_opti} seconds.\n")
-
-    # Compute optimization error
-    print(f'optimization errors for the input list:')
-    for result in opti_result:
-        print(test_function.optimization_error(result))
+    print(f"Optimization time: {time_opti} seconds.")
+    print(f"Optimization solution:\n {opti_result}")
+    print(f"Optimization error: {test_function.optimization_error(opti_result, ystar)}")      
         
-
+    # Plot results
     if dim == 2:
         figure = Figure(dim, model)
         figure.contour(test_function, grid_size, a)
         figure.init_points(constrained, xinit, ystar)
-        figure.solution_points(opti_result[0]["x"])
+        figure.solution_points(opti_result["x"])
     plt.show()
 
     # Test vectorization ability
