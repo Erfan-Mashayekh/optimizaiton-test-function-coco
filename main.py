@@ -21,13 +21,14 @@ if __name__ == '__main__':
     dim = model['dimensions']  # input dimension ∈ {2,3,5,10,20,40}
     constrained = model['constrained']  # bool: constraints on/off
     num_constraints = model['num_constraints']  # number of constraints
-    constraints_seed = model['constraints_seed']  # specified seed for random constraints
+    seed = model['seed']  # specified seed for random constraints and inputs
     lb = model['lower_bounds'] * np.ones(dim)
     ub = model['upper_bounds'] * np.ones(dim)
     opt_read = model['opt_read']  # bool: read input points from data.csv
     grid_size = model['grid_size']  # grid size for plotting 
 
     # Optimum and initial points
+    np.random.seed(seed)
     ystar = np.random.uniform(low=lb, high=ub, size=(dim))
     xinit = np.random.uniform(low=lb, high=ub, size=(dim))
 
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     time_start = timer()
     if function_type == 1:  # 1: coco function
         if constrained:
-            a = test_function.initialize_constraint_parameters(grid_size, constraints_seed)
+            a = test_function.initialize_constraint_parameters(grid_size, seed)
             cons = {'type': 'ineq', 'fun': lambda x: get_g(x, a)}
         else:
             a = None

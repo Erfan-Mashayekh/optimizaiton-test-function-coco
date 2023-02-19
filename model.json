@@ -5,7 +5,7 @@
   "instance": 1,
   "constrained": true,
   "num_constraints": 3,
-  "constraints_seed": 1,
+  "seed": 1,
   "lower_bounds": -5,
   "upper_bounds": 5,
   "opt_read": false,

@@ -6,22 +6,32 @@ Created on Wen Jun 30 14:51:33 2021
 
 Functions mostly from: https://www.sfu.ca/~ssurjano/index.html
 
-@author: Lisa Pretsch
+@author: Lisa Pretsch, Erfan Mashayekh
 """
 import numpy as np
+from typing import Dict, Union, List, Tuple
 
 from ioh import problem
 from ioh import get_problem, ProblemType
 
 
 class COCOTestFunction:
-    """
-    Usually evaluated on [-5,5]^d
-    Global minimum at x_i=1 where f(x)=0
-    """
 
-    def __init__(self, model, dim, instance, constrained, num_constraints, lb, ub, ystar):
+    def __init__(self, model: Dict[str, Union[int, str, bool, List[float]]], dim: int, instance: int,
+                constrained: bool, num_constraints: int, lb: np.ndarray, ub: np.ndarray, ystar: np.ndarray) -> None:
+        """
+        Initialize the problem instance.
 
+        Args:
+        - model (Dict[str, Union[int, str, bool, List[float]]]): a dictionary containing model information, including the test function name
+        - dim (int): the dimension of the problem
+        - instance (int): the instance of the problem
+        - constrained (bool): a flag indicating whether the problem is constrained or not
+        - num_constraints (int): the number of constraints of the problem
+        - lb (np.ndarray): the lower bound of the search space
+        - ub (np.ndarray): the upper bound of the search space
+        - ystar (float): the target function value
+        """
         self.coco_id = model['coco_id']  # name of test function
         self.dim = dim
         self.instance = instance
@@ -33,23 +43,35 @@ class COCOTestFunction:
         self.problem = get_problem(self.coco_id, self.instance, self.dim, ProblemType.BBOB)  
         self.a = np.zeros((self.num_constraints, self.dim))
 
-    def evaluate(self, x):
+    def evaluate(self, x: np.ndarray) -> Union[float, np.ndarray]:
         """
         Compute the value of the function for the corresponding input 'x'
+
+        Args:
+        - x (np.ndarray): the input to the function
+
+        Returns:
+        - Union[float, np.ndarray]: the output of the function
         """
         if x.size <= self.dim:
+            # If the size of x is less than or equal to the dimension of the function, evaluate the function at x
             return self.problem(x)
         else:
+            # Otherwise, evaluate the function at each row of x and return the resulting array
             function_list = np.empty(x.shape[0])
             for i in range(x.shape[0]):
-                function_list[i] = self.problem(x[i]) 
+                function_list[i] = self.problem(x[i])
             return function_list
 
-    def grid(self, grid_size):
+    def grid(self, grid_size: int) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Generate an d-dimensional grid based on the parameter 'dim'
-        :param grid_size: the size of the grid
-        :return: x:
+        Generate a d-dimensional grid based on the parameter 'dim'
+
+        Args:
+        - grid_size (int): the size of the grid
+
+        Returns:
+        - Tuple[np.ndarray, np.ndarray]: a tuple of two NumPy arrays, the first being the grid points, and the second being the evaluated function values at those grid points
         """
         args = []
         for i in range(self.dim):
@@ -60,9 +82,17 @@ class COCOTestFunction:
 
         return mesh, f
 
-    def compute_a(self, alpha, grid_size, constraints_seed):
+    def compute_a(self, alpha: float, grid_size: int, constraints_seed: int) -> None:
         """
         Compute coefficient 'a' which helps to generate a random slope for a linear constraint.
+
+        Args:
+        - alpha (float): the coefficient alpha used to compute the value of 'a'
+        - grid_size (int): the size of the grid used to compute the gradient
+        - constraints_seed (int): the seed used for random generation of 'a'
+
+        Returns:
+        - None
         """
         # Generate 3 grid points around ystar in each coordinate and 
         # compute the gradient at this point using 2nd order finite difference method
@@ -82,11 +112,23 @@ class COCOTestFunction:
         np.random.seed(constraints_seed)
         self.a[1:, :] = np.random.normal(self.a[0, :], 0.9, size=(self.num_constraints - 1, self.dim))
 
-    def initialize_constraint_parameters(self, grid_size, constraints_seed):
+
+    def initialize_constraint_parameters(self, grid_size: int, constraints_seed: int) -> np.ndarray:
+        """
+        Initialize the constraint parameters 'a' and 'b' using the given grid size and constraints seed.
+
+        Args:
+        - grid_size (int): the size of the grid used to compute the gradient
+        - constraints_seed (int): the seed used for random generation of 'a'
+
+        Returns:
+        - np.ndarray: the constraint parameter 'a'
+        """
         alpha = np.ones(self.num_constraints)
         b = np.zeros(self.num_constraints)
         self.compute_a(alpha[0], grid_size, constraints_seed)
         return self.a
+
 
     def compute_g(self, x, a):
         """
@@ -101,9 +143,12 @@ class COCOTestFunction:
         """
         Computes the error of the optimal point
         """
-        # return np.linalg.norm(result['x'] - self.problem.optimum.x)
+        # Calculate the difference between the optimized function value and the actual optimal value
+        # If the problem is not constrained, calculate the difference between the optimized function value and 
+        # the actual optimal value of the problem.
         if self.constrained:
-            return result['fun'] - self.evaluate(ystar)
+            #TODO: ystar is not the optimal point, hence this computation is not correct. A proper way need to be considered.
+            return result['fun'] - self.evaluate(ystar) 
         else:
             return result['fun'] - self.problem.optimum.y
 
