@@ -170,9 +170,16 @@ class COCOTestFunction:
         self.compute_b()
         return self.a, self.b
 
-    def compute_g(self, x, a, b):
+    def compute_g(self, x: np.ndarray, a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
-        Compute the linear constraints in the "d-dimensional" space
+        Compute the value of the linear constraints in the "d-dimensional" space using the formula g = (a @ (x - ystar).T) + b.
+        Args:
+        - x (numpy.ndarray): an array containing the input points, where each row represents a single point and each column represents a dimension.
+        - a (numpy.ndarray): an array containing the normal vectors of the linear constraints.
+        - b (numpy.ndarray): an array containing the intercepts of the linear constraints.
+        
+        Returns:
+        - g (numpy.ndarray): an array containing the values of the linear constraints at the given input points.
         """
         g = (a @ (x - self.ystar).T) + b
         return -g
