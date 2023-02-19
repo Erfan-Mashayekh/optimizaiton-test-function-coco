@@ -12,7 +12,11 @@
 | ~~Add Rastrigin function (F15 in bbob testsuite)~~                      |                                           |                                                     |
 |  |                                           | Use IOH library to implement functions              |
 |  |  |  Implement constraints in an efficient way                                                   |
-| Generalize the process of biases `b` generation in `compute_g` function |                                           |                                                     |
+|  |                                           | Generalize the process of biases `b` generation in `compute_g` function   |
+
+### Feb 20th, 2023
+1. Compute a and b through randomly sampling from an isotropic multivariate normal distribution.
+2. Refactor the test_functions_coco file.
 
 ### Feb 5th, 2023
 1. implement error function to check the accuracy of the optimization method used in scipy
