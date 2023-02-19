@@ -39,23 +39,24 @@ if __name__ == '__main__':
     def get_f(x):
         return test_function.evaluate(x)
 
-    def get_g(x, a):
-        return test_function.compute_g(x, a)
+    def get_g(x, a, b):
+        return test_function.compute_g(x, a, b)
 
-    def get_resp(x, a):
+    def get_resp(x, a, b):
         f = test_function.evaluate(x)
         f = f.reshape(1, -1)
-        g = test_function.compute_g(x, a)
+        g = test_function.compute_g(x, a, b)
         return np.concatenate((f, g))
 
     # Optimization process
     time_start = timer()
     if function_type == 1:  # 1: coco function
         if constrained:
-            a = test_function.initialize_constraint_parameters(grid_size, seed)
-            cons = {'type': 'ineq', 'fun': lambda x: get_g(x, a)}
+            a, b = test_function.initialize_constraint_parameters(grid_size, seed)
+            cons = {'type': 'ineq', 'fun': lambda x: get_g(x, a, b)}
         else:
             a = None
+            b = None
             cons = ()
         bounds = Bounds(lb, ub)
         opti_result = minimize(lambda x: get_f(x),
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     # Plot results
     if dim == 2:
         figure = Figure(dim, model)
-        figure.contour(test_function, grid_size, a)
+        figure.contour(test_function, grid_size, a, b)
         figure.init_points(constrained, xinit, ystar)
         figure.solution_points(opti_result["x"])
     plt.show()
@@ -97,9 +98,9 @@ if __name__ == '__main__':
     if f_test.shape != (s,):        
         warn('Objective function can not handle vectorized inputs.')
     
-    if constrained:
-        g_test = get_g(x_test,a)
-        resp_test = get_resp(x_test,a)
+    if constrained:        
+        g_test = get_g(x_test,a, b.reshape((num_constraints,1)))
+        resp_test = get_resp(x_test,a, b.reshape((num_constraints,1)))
         if g_test.shape != (num_constraints, s):
             warn('Constraint functions can not handle vectorized inputs.')
         if resp_test.shape != (num_constraints+1, s):

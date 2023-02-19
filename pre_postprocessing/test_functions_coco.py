@@ -42,6 +42,7 @@ class COCOTestFunction:
         self.ystar = ystar
         self.problem = get_problem(self.coco_id, self.instance, self.dim, ProblemType.BBOB)  
         self.a = np.zeros((self.num_constraints, self.dim))
+        self.b = np.zeros(self.num_constraints)
 
     def evaluate(self, x: np.ndarray) -> Union[float, np.ndarray]:
         """
@@ -82,9 +83,30 @@ class COCOTestFunction:
 
         return mesh, f
 
+    def random_sample(self, n) -> np.ndarray:
+        """
+        Generate a random sample from an isotropic multivariate normal distribution
+
+        Returns:
+            np.ndarray: A random sample of size (n,).
+        """
+        # generate the vector of standard normal random variables
+        z = np.random.normal(size=n)
+
+        # generate the matrix of eigenvectors
+        eigenvec = np.linalg.qr(np.random.normal(size=(n, n)))[0]
+
+        # scale the eigenvectors by the square root of the eigenvalues
+        eigenvec = eigenvec / np.sqrt(n)
+
+        # compute the sample
+        sample = eigenvec @ z
+
+        return sample
+
     def compute_a(self, alpha: float, grid_size: int, constraints_seed: int) -> None:
         """
-        Compute coefficient 'a' which helps to generate a random slope for a linear constraint.
+        Compute coefficient 'a' as a random slope for a linear constraint.
 
         Args:
         - alpha (float): the coefficient alpha used to compute the value of 'a'
@@ -106,12 +128,31 @@ class COCOTestFunction:
             upper_point[i] = self.ystar[i] + delta
             grad_f_ystar[i] = (self.problem(upper_point) - self.problem(lower_point)) / (2*delta)
 
-        # compute the value of coefficient 'a' based on ystar position and its gradient
+        # compute the value of coefficient 'a1' based on ystar position and its gradient
         self.a = np.zeros((self.num_constraints, self.dim))
         self.a[0, :] = - alpha * grad_f_ystar / np.linalg.norm(grad_f_ystar)
-        np.random.seed(constraints_seed)
-        self.a[1:, :] = np.random.normal(self.a[0, :], 0.9, size=(self.num_constraints - 1, self.dim))
+        
+        # compute a_k by randomly sampling from an isotropic multivariate normal distribution
+        for k in range(self.num_constraints-1):
+            self.a[k+1, :] = self.random_sample(self.dim)
 
+        # alternative way with seed
+        # np.random.seed(seed)
+        # self.a[1:, :] = np.random.normal(self.a[0, :], 0.9, size=(self.num_constraints - 1, self.dim))
+
+    def compute_b(self) -> None:
+        """
+        Compute coefficient 'a' as a random bias for a linear constraint.
+
+        Returns:
+        - None
+        """
+        self.b[0] = 0
+        
+        # compute b_k by randomly sampling from an isotropic multivariate normal distribution
+        self.b[1:] = self.random_sample(self.num_constraints-1)
+        # TODO: A constraint is inactive at the constructed optimum if bk > 0
+        self.b = np.where(self.b <= 0, self.b, -self.b) 
 
     def initialize_constraint_parameters(self, grid_size: int, constraints_seed: int) -> np.ndarray:
         """
@@ -124,30 +165,27 @@ class COCOTestFunction:
         Returns:
         - np.ndarray: the constraint parameter 'a'
         """
-        alpha = np.ones(self.num_constraints)
-        b = np.zeros(self.num_constraints)
+        alpha = np.ones(self.num_constraints)        
         self.compute_a(alpha[0], grid_size, constraints_seed)
-        return self.a
+        self.compute_b()
+        return self.a, self.b
 
-
-    def compute_g(self, x, a):
+    def compute_g(self, x, a, b):
         """
         Compute the linear constraints in the "d-dimensional" space
         """
-        # g = alpha * (a @ (x-self.ystar).T) + b
-        g = (a @ (x - self.ystar).T)
-        g[1] = g[1] + 2.
+        g = (a @ (x - self.ystar).T) + b
         return -g
 
     def optimization_error(self, result, ystar):
         """
-        Computes the error of the optimal point
+        Compute the error of the optimal point
         """
         # Calculate the difference between the optimized function value and the actual optimal value
         # If the problem is not constrained, calculate the difference between the optimized function value and 
         # the actual optimal value of the problem.
         if self.constrained:
-            #TODO: ystar is not the optimal point, hence this computation is not correct. A proper way need to be considered.
+            print("Warning: Note that ystar is a unique optimal point if f(x) is strictly pseudoconvex at ystar")
             return result['fun'] - self.evaluate(ystar) 
         else:
             return result['fun'] - self.problem.optimum.y
