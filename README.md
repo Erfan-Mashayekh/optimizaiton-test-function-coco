@@ -1,6 +1,9 @@
 # Optimization of Constrained COCO Test Functions
 This code is designed to test and compare optimization algorithms on the [COCO/BBOB functions](https://numbbo.github.io/coco/testsuites) with and without constraints. The objective function is provided by [IOH](https://iohprofiler.github.io/IOHexp/). The extension to constrained problems closely follows the [description of the bbob-constrained test suite](http://numbbo.github.io/coco-doc/bbob-constrained/functions.pdf). It is implemented in the COCOTestFunction class, which is imported from the pre_postprocessing.test_functions_coco module. As placeholder for eventual optimization algorithms, the SLSQP algorithm from the scipy.optimize package is used.
 
+![Sample results in 2d space for COCO functions wit id 4. Star is the final solution; blue point is the initial point.](images/results1.png)
+![Sample results in 2d space for COCO functions wit id 1. Star is the final solution; blue point is the initial point.](images/results2.png)
+
 # Requirements
 This code requires the following Python packages to be installed:
 - IOHExperimenter 0.3.8 (https://iohprofiler.github.io/IOHexperimenter/)
